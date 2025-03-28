@@ -2,30 +2,29 @@
 # qiskit
 #
 
-# Import necessary Qiskit modules
-from qiskit import QuantumCircuit, Aer, execute
+from qiskit import QuantumCircuit, transpile
+from qiskit_aer import Aer
 from qiskit.visualization import plot_histogram
 
-# Create a quantum circuit with 1 qubit and 1 classical bit
+# Create a 1-qubit circuit
 qc = QuantumCircuit(1, 1)
+qc.h(0)  # Hadamard gate
+qc.measure(0, 0)  # Measure
 
-# Apply a Hadamard gate to the qubit to create a superposition
-qc.h(0)
-
-# Measure the qubit into the classical bit
-qc.measure(0, 0)
-
-# Simulate the circuit using the QASM simulator
+# Get the simulator backend
 simulator = Aer.get_backend('qasm_simulator')
-result = execute(qc, simulator, shots=1024).result()
 
-# Get the measurement counts
+# Transpile the circuit for the backend
+transpiled_circuit = transpile(qc, simulator)
+
+# Run the circuit
+job = simulator.run(transpiled_circuit, shots=1024)
+result = job.result()
 counts = result.get_counts()
 
-# Print the circuit and results
+# Output
 print("Circuit:")
 print(qc)
 print("\nMeasurement counts:", counts)
-
-# Visualize the results
 plot_histogram(counts)
+
